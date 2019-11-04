@@ -17,7 +17,11 @@ enum eforma
 #define BLANCO al_map_rgb(255, 255, 255)
 #define NEGRO al_map_rgb(0, 0, 0)
 #define DARK_BLUE al_map_rgb(0, 0, 139)
-#define MODER_ORANGE al_map_rgb(179, 106, 48)
+#define M_ORANGE al_map_rgb(179, 106, 48)
+#define S_ORANGE al_map_rgb(200, 76, 8)
+#define DARK_CYAN al_map_rgb(91, 162, 114)
+#define GRAYI al_map_rgb(197, 200, 197)
+#define DARK_BLUET al_map_rgb(124, 117, 163)
 
 
 void Pixel(int32_t x, int32_t y, const ALLEGRO_COLOR col);
@@ -30,7 +34,7 @@ void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR 
 
 void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
 
-void elipse(int32_t rx, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
+void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
 
 void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col);
 
@@ -161,13 +165,13 @@ void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 	}
 }
 
-void elipse(int32_t rx, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
+void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 
 	int x, y, rx2, ry2, p1, p2;
-	int ry;
+	//int ry;
 
 	x = 0;
-	ry = rx / 2;
+	//ry = rx / 2;
 	y = ry;
 	rx2 = pow(rx, 2);
 	ry2 = pow(ry, 2);

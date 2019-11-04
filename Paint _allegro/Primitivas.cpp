@@ -105,15 +105,15 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 		return 0;
 	}
 
-	/*vecPuntos = al_load_font("manaspc.ttf", 32, 0);
-	titulo = al_load_font("manaspc.ttf", 56, 0);
-	if (!vecPuntos || !titulo) {
+	
+	ini.fuente = al_load_ttf_font("arial.ttf", 18, 0);
+	if (!ini.fuente) {
 		al_show_native_message_box(NULL, "ERRO",
 			"Se produjo el siguiente error y el programa finalizará:",
 			"Error al cargar la vecPuntos", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		destroy();
 		return 0;
-	}*/
+	}
 
 	if (!al_install_keyboard()) {
 		al_show_native_message_box(NULL, "ERRO",
@@ -176,7 +176,7 @@ struct sFormas
 	int nMaxPunto = 0;
 
 	// The colour of the shape
-	ALLEGRO_COLOR col = al_map_rgb(0, 128, 0);
+	ALLEGRO_COLOR col = DARK_CYAN;
 
 	// All shapes share word to screen transformation
 	// coefficients, so share them staically
@@ -241,7 +241,8 @@ struct sFormas
 			i++;
 			int sx, sy;
 			MundoAScreen(n.pos, sx, sy);
-			circulo(RADIUS, sx, sy, MODER_ORANGE);
+			al_draw_filled_circle(sx, sy, RADIUS/1.5, S_ORANGE);
+			//circulo(RADIUS, sx, sy, MODER_ORANGE);
 		}
 	}
 };
@@ -265,7 +266,7 @@ struct sLinea : public sFormas
 		int sx, sy, ex, ey;
 		MundoAScreen(vecPuntos[0].pos, sx, sy);
 		MundoAScreen(vecPuntos[1].pos, ex, ey);
-		linea(sx, sy, ex, ey, col, 0xFFFFFFFF);
+		linea(sx, sy, ex, ey, col);
 	}
 };
 
@@ -278,7 +279,7 @@ struct sRec : public sFormas
 		vecPuntos.reserve(nMaxPunto);
 	}
 
-	void DibujarForma() 
+	void DibujarForma()
 	{
 		int sx, sy, ex, ey;
 		MundoAScreen(vecPuntos[0].pos, sx, sy);
@@ -299,16 +300,16 @@ struct sCir : public sFormas
 	void DibujarForma()
 	{
 
-		float dx = (vecPuntos[0].pos.x - vecPuntos[1].pos.x);
-		float dy = (vecPuntos[0].pos.y - vecPuntos[1].pos.y);
-		float fRadius = (dx * dx - dy * dy);
-		int sx, sy, ini, ey;
+		float dx = abs(vecPuntos[0].pos.x - vecPuntos[1].pos.x);
+		float dy = abs(vecPuntos[0].pos.y - vecPuntos[1].pos.y);
+		float fRadius = sqrt(pow(dx, 2) + pow(dy, 2));
+		int sx, sy, ex, ey;
 		MundoAScreen(vecPuntos[0].pos, sx, sy);
-		MundoAScreen(vecPuntos[1].pos, ini, ey);
-		linea(sx, sy, ini, ey, col, 0xFF00FF00);
+		MundoAScreen(vecPuntos[1].pos, ex, ey);
+		linea(sx, sy, ex, ey, col, 0xFF00FF00);
 
 		// Note the radius is also scaled so it is drawn appropriately
-		circulo(sx, sy, (int32_t)(fRadius * fWorldScale), col);
+		circulo(fRadius * fWorldScale,sx, sy, col);
 	}
 };
 
@@ -323,34 +324,82 @@ struct sTriangulo : public sFormas
 
 	void DibujarForma()
 	{
-		int sx, sy, ini, ey;
+		int sx, sy, ex, ey;
 
 		if (vecPuntos.size() < 3)
 		{
 			// Can only draw line from first to second
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
-			MundoAScreen(vecPuntos[1].pos, ini, ey);
-			linea(sx, sy, ini, ey, col, 0xFF00FF00);
+			MundoAScreen(vecPuntos[1].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFF00FF00);
 		}
 
 		if (vecPuntos.size() == 3)
 		{
 			// dibuja línea de primera punto a segunda punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
-			MundoAScreen(vecPuntos[1].pos, ini, ey);
-			linea(sx, sy, ini, ey, col, 0xFFFFFFFF);
+			MundoAScreen(vecPuntos[1].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFFFFFFFF);
 
 			// dibuja línea de segunda punto a tercer punto
 			MundoAScreen(vecPuntos[1].pos, sx, sy);
-			MundoAScreen(vecPuntos[2].pos, ini, ey);
-			linea(sx, sy, ini, ey, col, 0xFFFFFFFF);
+			MundoAScreen(vecPuntos[2].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFFFFFFFF);
 
 			// dibuja línea de tercer punto a primer punto
 			MundoAScreen(vecPuntos[2].pos, sx, sy);
-			MundoAScreen(vecPuntos[0].pos, ini, ey);
-			linea(sx, sy, ini, ey, col, 0xFFFFFFFF);
+			MundoAScreen(vecPuntos[0].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFFFFFFFF);
 		}
 
+	}
+};
+
+// ELIPSE
+struct sElipse : public sFormas
+{
+	sElipse()
+	{
+		nMaxPunto = 3;
+		vecPuntos.reserve(nMaxPunto);
+	}
+
+	void DibujarForma()
+	{
+		int sx, sy, ex, ey;
+
+		if (vecPuntos.size() < 3)
+		{
+			// Can only draw line from first to second
+			MundoAScreen(vecPuntos[0].pos, sx, sy);
+			MundoAScreen(vecPuntos[1].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+		}
+
+		if (vecPuntos.size() == 3)
+		{
+			// dibuja línea de primera punto a segunda punto
+			MundoAScreen(vecPuntos[0].pos, sx, sy);
+			MundoAScreen(vecPuntos[1].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+
+			// dibuja línea de segunda punto a tercer punto
+			MundoAScreen(vecPuntos[0].pos, sx, sy);
+			MundoAScreen(vecPuntos[2].pos, ex, ey);
+			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+
+
+			float dx = abs(vecPuntos[0].pos.x - vecPuntos[1].pos.x);
+			float dy = abs(vecPuntos[0].pos.y - vecPuntos[1].pos.y);
+			float fRadiusx = sqrt(pow(dx, 2) + pow(dy, 2));
+			float dx2 = abs(vecPuntos[0].pos.x - vecPuntos[2].pos.x);
+			float dy2 = abs(vecPuntos[0].pos.y - vecPuntos[2].pos.y);
+			float fRadiusy = sqrt(pow(dx2, 2) + pow(dy2, 2));
+			// dibuja línea de tercer punto a primer punto
+			MundoAScreen(vecPuntos[0].pos, sx, sy);
+
+			elipse((int)(fRadiusx* fWorldScale), (int)(fRadiusy* fWorldScale), sx, sy, col);
+		}
 	}
 };
 
@@ -361,7 +410,9 @@ int main(int argc, char** argv)
 	sFormas* formaTemp = nullptr;
 	sPuntos* selecPunto = nullptr;
 	vf2d vMouse;
+	vf2d vCursor = { 0, 0 };
 	float fGrid = 1.0f;
+	float fScale = 10.0f;
 	bool mdown = false;
 	int nForma = NADA;
 
@@ -378,6 +429,10 @@ int main(int argc, char** argv)
 		/*************************************************acualizacion de pantalla*******************************************************/
 		al_wait_for_event(ini.colaevento, &event);
 		vMouse = { (float)event.mouse.x ,(float)event.mouse.y };
+		vf2d vMouseB;
+		ScreenToWorld((int)vMouse.x, (int)vMouse.y, vMouseB);
+		vCursor.x = floorf((vMouseB.x + 0.5f) * fGrid);
+		vCursor.y = floorf((vMouseB.y + 0.5f) * fGrid);
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			break;
 		if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
@@ -388,20 +443,7 @@ int main(int argc, char** argv)
 
 				break;
 			case 'L':
-
-				formaTemp = new sLinea();
-
-				// Place first node at location of keypress
-				selecPunto = formaTemp->OptenerPunto(vMouse);
-
-				// Get Second node
-				selecPunto = formaTemp->OptenerPunto(vMouse);
-				
-				/*nForma = LINEA_B;
-				if (nForma == LINEA_B)
-				{
-					nForma = NADA;
-				}*/
+				nForma = LINEA_B;
 				break;
 			case 'C':
 				nForma = CIRCULO;
@@ -418,59 +460,64 @@ int main(int argc, char** argv)
 			}
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-			if (event.mouse.button == 1)
+
+			if (nForma == LINEA_B)
 			{
-				if (formaTemp != nullptr)
-				{
-					selecPunto = formaTemp->OptenerPunto(vMouse);
-					if (selecPunto == nullptr)
-					{
-						formaTemp->col = BLANCO;
-						listShapes.push_back(formaTemp);
-					}
-				}
-				if (selecPunto != nullptr)
-				{
-					selecPunto->pos = vMouse;
-				}
-				//if (nForma == LINEA_B)
-				//{
-				//	formaTemp = new sLinea();
+				formaTemp = new sLinea();
 
-				//	// Place first node at location of keypress
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
+				// Place first node at location of keypress
+				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				//	// Get Second node
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
-				//	nForma = NADA;
-				//}
-				//else if (nForma == CIRCULO)
-				//{
-				//	formaTemp = new sCir();
-
-				//	// Place first node at location of keypress
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
-
-				//	// Get Second node
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
-				//	nForma = NADA;
-				//}
-				//else if (nForma == RECTANGULO)
-				//{
-				//	formaTemp = new sRec();
-
-				//	// Place first node at location of keypress
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
-
-				//	// Get Second node
-				//	selecPunto = formaTemp->OptenerPunto(vMouse);
-				//	nForma = NADA;
-				//}
+				// Get Second node
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+				nForma = NADA;
 			}
-			else if (event.mouse.button == 2) 
+			else if (nForma == CIRCULO)
 			{
-				
+				formaTemp = new sCir();
+
+				// Place first node at location of keypress
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+
+				// Get Second node
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+				nForma = NADA;
 			}
+			else if (nForma == RECTANGULO)
+			{
+				formaTemp = new sRec();
+
+				// Place first node at location of keypress
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+
+				// Get Second node
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+				nForma = NADA;
+			}
+			else if (nForma == TRIANGULO)
+			{
+				formaTemp = new sTriangulo();
+
+				// Place first node at location of keypress
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+
+				// Get Second node
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+				nForma = NADA;
+			}
+			else if (nForma == ELIPSE)
+			{
+				formaTemp = new sElipse();
+
+				// Place first node at location of keypress
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+
+				// Get Second node
+				selecPunto = formaTemp->OptenerPunto(vCursor);
+				nForma = NADA;
+			}
+			else if (event.mouse.button == 1){}
+			else if (event.mouse.button == 2){}
 			//rclick(x, y);
 			else if (event.mouse.button == 3)
 			{
@@ -480,20 +527,15 @@ int main(int argc, char** argv)
 			}
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-
-			if (event.mouse.button == 2)
-			{
-
-			}
-			/*if (formaTemp != nullptr)
+			if (formaTemp != nullptr)
 			{
 				selecPunto = formaTemp->OptenerPunto(vMouse);
 				if (selecPunto == nullptr)
 				{
-					formaTemp->col = BLANCO;
+					formaTemp->col = GRAYI;
 					listShapes.push_back(formaTemp);
 				}
-			}*/
+			}
 			mdown = false;
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
@@ -505,10 +547,10 @@ int main(int argc, char** argv)
 			}
 			else if (selecPunto != nullptr)
 			{
-				selecPunto->pos = vMouse;
+				selecPunto->pos = vCursor;
 			}
 		}
-
+		
 		/*************************************************acualizacion de pantalla*******************************************************/
 		if (al_is_event_queue_empty(ini.colaevento)) {
 
@@ -539,7 +581,7 @@ int main(int argc, char** argv)
 			sFormas::fWorldScale = fScale;
 			sFormas::vWorldOffset.x = vOffset.x;
 			sFormas::vWorldOffset.y = vOffset.y;
-
+			
 			for (auto& forma : listShapes)
 			{
 				forma->DibujarForma();
@@ -551,6 +593,8 @@ int main(int argc, char** argv)
 				formaTemp->DibujarForma();
 				formaTemp->DibujarPuntos();
 			}
+
+			al_draw_textf(ini.fuente, al_map_rgb(255, 255, 255), 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.2f , Y: %.2f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
 			al_flip_display();
 		}
