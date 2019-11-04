@@ -8,15 +8,12 @@
 struct Example {
 	ALLEGRO_DISPLAY* sVentana;
 	ALLEGRO_FONT* fuente;
-	ALLEGRO_FONT* fuentebmp;
 	ALLEGRO_EVENT_QUEUE* colaevento;
-	ALLEGRO_BITMAP* dbuf;
-	ALLEGRO_COLOR     bg;
-	ALLEGRO_COLOR     fg;
 };
 
 static struct Example ini;
 
+// Se define una estructura para un punto
 struct vf2d
 {
 	float x;
@@ -24,21 +21,21 @@ struct vf2d
 };
 
 vf2d vOffset = { 0.0f, 0.0f };
-vf2d vStartPan = { 0.0f, 0.0f };
-float fScale = 10.0f;
+vf2d vIniPan = { 0.0f, 0.0f };
+float fEscala = 10.0f;
 
-// Convert coordinates from World Space --> Screen Space
+// Convierte coordenadas de World Space --> Screen Space
 void WorldToScreen(const float v_x, const float v_y, int& nScreenX, int& nScreenY)
 {
-	nScreenX = (int)((v_x - vOffset.x) * fScale);
-	nScreenY = (int)((v_y - vOffset.y) * fScale);
+	nScreenX = (int)((v_x - vOffset.x) * fEscala);
+	nScreenY = (int)((v_y - vOffset.y) * fEscala);
 }
 
-// Convert coordinates from Screen Space --> World Space
+// Convierte coordenadas de Screen Space --> World Space
 void ScreenToWorld(int nScreenX, int nScreenY, vf2d& v)
 {
-	v.x = (float)(nScreenX) / fScale + vOffset.x;
-	v.y = (float)(nScreenY) / fScale + vOffset.y;
+	v.x = (float)(nScreenX) / fEscala + vOffset.x;
+	v.y = (float)(nScreenY) / fEscala + vOffset.y;
 }
 
 void destroy() {
@@ -160,7 +157,7 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 
 struct sFormas;
 
-// Define a node
+// Define un punto
 struct sPuntos
 {
 	sFormas* tipo_forma;
@@ -171,53 +168,44 @@ struct sPuntos
 // Clase BASE define la interfaz para todas las formas.
 struct sFormas
 {
-	// Shapes are defined by the placment of nodes
+	//  Se declaran los puntos para las formas
 	std::vector<sPuntos> vecPuntos;
 	int nMaxPunto = 0;
 
-	// The colour of the shape
+	// Color de la forma
 	ALLEGRO_COLOR col = DARK_CYAN;
-
-	// All shapes share word to screen transformation
-	// coefficients, so share them staically
-	static float fWorldScale;
+	// Escala de las formas
+	static float fWorldEscala;
+	// compensacion
 	static vf2d vWorldOffset;
 
-	// Convert coordinates from World Space --> Screen Space
+	// Convertir coordenadas de World Space --> Screen Space
 	void MundoAScreen(const vf2d& v, int& nScreenX, int& nScreenY)
 	{
-		nScreenX = (int)((v.x - vWorldOffset.x) * fWorldScale);
-		nScreenY = (int)((v.y - vWorldOffset.y) * fWorldScale);
+		nScreenX = (int)((v.x - vWorldOffset.x) * fWorldEscala);
+		nScreenY = (int)((v.y - vWorldOffset.y) * fWorldEscala);
 	}
 
-	// This is a PURE function, which makes this class abstract. A sub-class
-	// of this class must provide an implementation of this function by
-	// overriding it
+	// Funcion que permite llamar al las de las 
+	// sub-clases que heredan.
 	virtual void DibujarForma() = 0;
 
-	// Shapes are defined by nodes, the shape is responsible
-	// for issuing nodes that get placed by the user. The shape may
-	// change depending on how many nodes have been placed. Once the
-	// maximum number of nodes for a shape have been placed, it returns
-	// nullptr
 	sPuntos* OptenerPunto(const vf2d& p)
 	{
 		if (vecPuntos.size() == nMaxPunto)
-			return nullptr; // Shape is complete so no new nodes to be issued
+			return nullptr; // Cuando la forma tiene todo los puntos 
 
-		// else create new node and add to shapes node vector
+		// si no se agrega mas puntos
 		sPuntos n;
 		n.tipo_forma = this;
 		n.pos = p;
 		vecPuntos.push_back(n);
 
-		// Beware! - This normally is bad! But see sub classes
 		return &vecPuntos[vecPuntos.size() - 1];
 	}
 
-	// Test to see if supplied coordinate exists at same location
-	// as any of the nodes for this shape. Return a pointer to that
-	// node if it does
+	// Si existe un punto en la coordenada
+	// retorna la direccion del punto
 	sPuntos* HitPunto(vf2d& p)
 	{
 		for (auto& n : vecPuntos)
@@ -232,7 +220,7 @@ struct sFormas
 		return nullptr;
 	}
 
-	// Draw all of the nodes that define this shape so far
+	// funcion para Dibujar todos los puntos
 	void DibujarPuntos()
 	{
 		int i = 0;
@@ -240,15 +228,15 @@ struct sFormas
 		{
 			i++;
 			int sx, sy;
-			MundoAScreen(n.pos, sx, sy);
-			al_draw_filled_circle(sx, sy, RADIUS/1.5, S_ORANGE);
+			MundoAScreen(n.pos, sx, sy); 
+			al_draw_filled_circle(sx, sy, RADIUS/1.5, S_ORANGE);// Se utilisa las de la libreria para el rellono
 			//circulo(RADIUS, sx, sy, MODER_ORANGE);
 		}
 	}
 };
 
-// We must provide an implementation of our static variables
-float sFormas::fWorldScale = 1.0f;
+// inicializacion de la Escala y la Compensacion
+float sFormas::fWorldEscala = 1.0f;
 vf2d sFormas::vWorldOffset = { 0,0 };
 
 // LINEA sub clase, hereda desde sFormas
@@ -308,8 +296,8 @@ struct sCir : public sFormas
 		MundoAScreen(vecPuntos[1].pos, ex, ey);
 		linea(sx, sy, ex, ey, col, 0xFF00FF00);
 
-		// Note the radius is also scaled so it is drawn appropriately
-		circulo(fRadius * fWorldScale,sx, sy, col);
+		// El radio se escala
+		circulo(fRadius * fWorldEscala,sx, sy, col);
 	}
 };
 
@@ -328,7 +316,7 @@ struct sTriangulo : public sFormas
 
 		if (vecPuntos.size() < 3)
 		{
-			// Can only draw line from first to second
+			// dibuja línea de primera punto a segunda punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 			MundoAScreen(vecPuntos[1].pos, ex, ey);
 			linea(sx, sy, ex, ey, col, 0xFF00FF00);
@@ -370,7 +358,7 @@ struct sElipse : public sFormas
 
 		if (vecPuntos.size() < 3)
 		{
-			// Can only draw line from first to second
+			// dibuja línea de primera punto a segunda punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 			MundoAScreen(vecPuntos[1].pos, ex, ey);
 			linea(sx, sy, ex, ey, col, 0xFF00FF00);
@@ -388,7 +376,8 @@ struct sElipse : public sFormas
 			MundoAScreen(vecPuntos[2].pos, ex, ey);
 			linea(sx, sy, ex, ey, col, 0xFF00FF00);
 
-
+			// Radio en x y y
+			// Se calcula con el triangulo rectangulo
 			float dx = abs(vecPuntos[0].pos.x - vecPuntos[1].pos.x);
 			float dy = abs(vecPuntos[0].pos.y - vecPuntos[1].pos.y);
 			float fRadiusx = sqrt(pow(dx, 2) + pow(dy, 2));
@@ -398,7 +387,7 @@ struct sElipse : public sFormas
 			// dibuja línea de tercer punto a primer punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 
-			elipse((int)(fRadiusx* fWorldScale), (int)(fRadiusy* fWorldScale), sx, sy, col);
+			elipse((int)(fRadiusx* fWorldEscala), (int)(fRadiusy* fWorldEscala), sx, sy, col);
 		}
 	}
 };
@@ -411,9 +400,9 @@ int main(int argc, char** argv)
 	sPuntos* selecPunto = nullptr;
 	vf2d vMouse;
 	vf2d vCursor = { 0, 0 };
-	float fGrid = 1.0f;
-	float fScale = 10.0f;
-	bool mdown = false;
+	float fCuadricula = 1.0f;
+	float fEscala = 10.0f;
+	bool mpres = false;
 	int nForma = NADA;
 
 	(void)argc;
@@ -422,7 +411,7 @@ int main(int argc, char** argv)
 	if (!ini_allegro(1400, 800, "Herramientas de Programacion Grafica"))
 		return -1;
 
-	vOffset = { (float)(-al_get_display_width(ini.sVentana) / 2) / fScale, (float)(-al_get_display_height(ini.sVentana) / 2) / fScale };
+	vOffset = { (float)(-al_get_display_width(ini.sVentana) / 2) / fEscala, (float)(-al_get_display_height(ini.sVentana) / 2) / fEscala };
 
 	while (true) {
 
@@ -431,8 +420,8 @@ int main(int argc, char** argv)
 		vMouse = { (float)event.mouse.x ,(float)event.mouse.y };
 		vf2d vMouseB;
 		ScreenToWorld((int)vMouse.x, (int)vMouse.y, vMouseB);
-		vCursor.x = floorf((vMouseB.x + 0.5f) * fGrid);
-		vCursor.y = floorf((vMouseB.y + 0.5f) * fGrid);
+		vCursor.x = floorf((vMouseB.x + 0.5f) * fCuadricula);
+		vCursor.y = floorf((vMouseB.y + 0.5f) * fCuadricula);
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			break;
 		if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
@@ -460,15 +449,16 @@ int main(int argc, char** argv)
 			}
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-
+			vCursor.x = floorf((vMouseB.x + 0.5f) * fCuadricula);
+			vCursor.y = floorf((vMouseB.y + 0.5f) * fCuadricula);
 			if (nForma == LINEA_B)
 			{
 				formaTemp = new sLinea();
 
-				// Place first node at location of keypress
+				// primer punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// Get Second node
+				// segundo punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 				nForma = NADA;
 			}
@@ -476,10 +466,10 @@ int main(int argc, char** argv)
 			{
 				formaTemp = new sCir();
 
-				// Place first node at location of keypress
+				// primer punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// Get Second node
+				// segundo punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 				nForma = NADA;
 			}
@@ -487,10 +477,10 @@ int main(int argc, char** argv)
 			{
 				formaTemp = new sRec();
 
-				// Place first node at location of keypress
+				// primer punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// Get Second node
+				// segundo punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 				nForma = NADA;
 			}
@@ -498,10 +488,10 @@ int main(int argc, char** argv)
 			{
 				formaTemp = new sTriangulo();
 
-				// Place first node at location of keypress
+				// primer punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// Get Second node
+				// segundo punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 				nForma = NADA;
 			}
@@ -509,21 +499,21 @@ int main(int argc, char** argv)
 			{
 				formaTemp = new sElipse();
 
-				// Place first node at location of keypress
+				// primer punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// Get Second node
+				// segundo punto
 				selecPunto = formaTemp->OptenerPunto(vCursor);
 				nForma = NADA;
 			}
-			else if (event.mouse.button == 1){}
-			else if (event.mouse.button == 2){}
-			//rclick(x, y);
+			/*else if (event.mouse.button == 1){}
+			else if (event.mouse.button == 2){}*/
+			
 			else if (event.mouse.button == 3)
 			{
-				vStartPan.x = vMouse.x;
-				vStartPan.y = vMouse.y;
-				mdown = true;
+				vIniPan.x = vMouse.x;
+				vIniPan.y = vMouse.y;
+				mpres = true;
 			}
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
@@ -536,25 +526,36 @@ int main(int argc, char** argv)
 					listShapes.push_back(formaTemp);
 				}
 			}
-			mdown = false;
+			mpres = false;
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-			if (mdown)
+
+			if (mpres)
 			{
-				vOffset.x -= (vMouse.x - vStartPan.x) / fScale;
-				vOffset.y -= (vMouse.y - vStartPan.y) / fScale;
-				vStartPan = vMouse;
+				vOffset.x -= (vMouse.x - vIniPan.x) / fEscala;
+				vOffset.y -= (vMouse.y - vIniPan.y) / fEscala;
+				vIniPan = vMouse;
 			}
 			else if (selecPunto != nullptr)
 			{
 				selecPunto->pos = vCursor;
 			}
+			/*else if (event.mouse.x >= al_get_display_width(ini.sVentana) / 2 - al_get_bitmap_width(area_central) / 2 &&
+				event.mouse.x <= al_get_display_width(ini.sVentana) / 2 + al_get_bitmap_width(area_central) / 2 &&
+				event.mouse.y >= al_get_display_height(ini.sVentana) / 2 - al_get_bitmap_height(area_central) / 2 &&
+				event.mouse.y <= al_get_display_height(ini.sVentana) / 2 + al_get_bitmap_height(area_central) / 2) {
+				na_area_central = 1;
+			}
+			else {
+				na_area_central = 0;
+			}*/
+			
 		}
 		
 		/*************************************************acualizacion de pantalla*******************************************************/
 		if (al_is_event_queue_empty(ini.colaevento)) {
-
-			al_clear_to_color(al_map_rgb(14, 14, 15));
+		
+			al_clear_to_color(V_DARK);
 
 			int sx, sy;
 			int ex, ey;
@@ -577,8 +578,8 @@ int main(int argc, char** argv)
 			WorldToScreen(vWorldBottomRight.x, 0, ex, ey);
 			linea(sx, sy, ex, ey, al_map_rgb(36, 64, 45), 0xFF00FF00);
 
-			// Update shape translation coefficients
-			sFormas::fWorldScale = fScale;
+			// Actualizar coeficientes de traslacion de formas
+			sFormas::fWorldEscala = fEscala;
 			sFormas::vWorldOffset.x = vOffset.x;
 			sFormas::vWorldOffset.y = vOffset.y;
 			
@@ -594,7 +595,7 @@ int main(int argc, char** argv)
 				formaTemp->DibujarPuntos();
 			}
 
-			al_draw_textf(ini.fuente, al_map_rgb(255, 255, 255), 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.2f , Y: %.2f", vCursor.x, vCursor.y);
+			al_draw_textf(ini.fuente, GRAYI, 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.0f , Y: %.0f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
 			al_flip_display();
 		}

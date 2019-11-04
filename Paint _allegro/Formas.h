@@ -16,6 +16,7 @@ enum eforma
 
 #define BLANCO al_map_rgb(255, 255, 255)
 #define NEGRO al_map_rgb(0, 0, 0)
+#define V_DARK al_map_rgb(14, 14, 15)
 #define DARK_BLUE al_map_rgb(0, 0, 139)
 #define M_ORANGE al_map_rgb(179, 106, 48)
 #define S_ORANGE al_map_rgb(200, 76, 8)
