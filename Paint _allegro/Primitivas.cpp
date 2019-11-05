@@ -9,6 +9,12 @@ struct Example {
 	ALLEGRO_DISPLAY* sVentana;
 	ALLEGRO_FONT* fuente;
 	ALLEGRO_EVENT_QUEUE* colaevento;
+	ALLEGRO_BITMAP* icono1;
+	ALLEGRO_BITMAP* icono2;
+	ALLEGRO_BITMAP* icono3;
+	ALLEGRO_BITMAP* icono4;
+	ALLEGRO_BITMAP* icono5;
+	ALLEGRO_BITMAP* icono6;
 };
 
 static struct Example ini;
@@ -77,15 +83,13 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 		return 0;
 	}
 
-	/*fundo = al_load_bitmap("img/icons8.png");
-	if (!fundo) {
-
-		destroy();
-		return 0;
-	}*/
-
-	/*flecha_titulo = al_load_bitmap("img/arrow.png");
-	if (!flecha_titulo) {
+	/*ini.icono1 = al_load_bitmap("");
+	ini.icono2 = al_load_bitmap("");
+	ini.icono3 = al_load_bitmap("");
+	ini.icono4 = al_load_bitmap("");
+	ini.icono5 = al_load_bitmap("");
+	ini.icono6 = al_load_bitmap("");
+	if (!ini.icono1 || !ini.icono2 || !ini.icono3 || !ini.icono4 || !ini.icono5 || !ini.icono6) {
 		al_show_native_message_box(NULL, "ERRO",
 			"Se produjo el siguiente error y el programa finalizará:",
 			"La imagen no se pudo cargar", NULL, ALLEGRO_MESSAGEBOX_ERROR);
@@ -102,7 +106,7 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 		return 0;
 	}
 
-	
+
 	ini.fuente = al_load_ttf_font("arial.ttf", 18, 0);
 	if (!ini.fuente) {
 		al_show_native_message_box(NULL, "ERRO",
@@ -163,7 +167,6 @@ struct sPuntos
 	sFormas* tipo_forma;
 	vf2d pos;
 };
-
 
 // Clase BASE define la interfaz para todas las formas.
 struct sFormas
@@ -228,8 +231,9 @@ struct sFormas
 		{
 			i++;
 			int sx, sy;
-			MundoAScreen(n.pos, sx, sy); 
-			al_draw_filled_circle(sx, sy, RADIUS/1.5, S_ORANGE);// Se utilisa las de la libreria para el rellono
+			MundoAScreen(n.pos, sx, sy);
+
+			al_draw_filled_circle(sx, sy, RADIUS / 1.5, S_ORANGE);// Se utilisa las de la libreria para el rellono
 			//circulo(RADIUS, sx, sy, MODER_ORANGE);
 		}
 	}
@@ -297,7 +301,7 @@ struct sCir : public sFormas
 		linea(sx, sy, ex, ey, col, 0xFF00FF00);
 
 		// El radio se escala
-		circulo(fRadius * fWorldEscala,sx, sy, col);
+		circulo(fRadius * fWorldEscala, sx, sy, col);
 	}
 };
 
@@ -387,7 +391,7 @@ struct sElipse : public sFormas
 			// dibuja línea de tercer punto a primer punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 
-			elipse((int)(fRadiusx* fWorldEscala), (int)(fRadiusy* fWorldEscala), sx, sy, col);
+			elipse((int)(fRadiusx * fWorldEscala), (int)(fRadiusy * fWorldEscala), sx, sy, col);
 		}
 	}
 };
@@ -403,6 +407,7 @@ int main(int argc, char** argv)
 	float fCuadricula = 1.0f;
 	float fEscala = 10.0f;
 	bool mpres = false;
+	bool bSinPunto = false;
 	int nForma = NADA;
 
 	(void)argc;
@@ -428,8 +433,11 @@ int main(int argc, char** argv)
 			if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
 				break;
 			switch (toupper(event.keyboard.unichar)) {
-			case ' ':
-
+			case 'S':
+				if (bSinPunto)
+					bSinPunto = false;
+				else
+					bSinPunto = true;
 				break;
 			case 'L':
 				nForma = LINEA_B;
@@ -508,7 +516,7 @@ int main(int argc, char** argv)
 			}
 			/*else if (event.mouse.button == 1){}
 			else if (event.mouse.button == 2){}*/
-			
+
 			else if (event.mouse.button == 3)
 			{
 				vIniPan.x = vMouse.x;
@@ -549,12 +557,12 @@ int main(int argc, char** argv)
 			else {
 				na_area_central = 0;
 			}*/
-			
+
 		}
-		
+
 		/*************************************************acualizacion de pantalla*******************************************************/
 		if (al_is_event_queue_empty(ini.colaevento)) {
-		
+
 			al_clear_to_color(V_DARK);
 
 			int sx, sy;
@@ -582,11 +590,12 @@ int main(int argc, char** argv)
 			sFormas::fWorldEscala = fEscala;
 			sFormas::vWorldOffset.x = vOffset.x;
 			sFormas::vWorldOffset.y = vOffset.y;
-			
+
 			for (auto& forma : listShapes)
 			{
 				forma->DibujarForma();
-				forma->DibujarPuntos();
+				if (bSinPunto)
+					forma->DibujarPuntos();
 			}
 
 			if (formaTemp != nullptr)

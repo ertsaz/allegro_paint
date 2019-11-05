@@ -24,25 +24,38 @@ enum eforma
 #define GRAYI al_map_rgb(197, 200, 197)
 #define DARK_BLUET al_map_rgb(124, 117, 163)
 
-
+// Funcion para colocar un Pixel en la pantalla
+// Se colorea automaticamente dependiendo del main
 void Pixel(int32_t x, int32_t y, const ALLEGRO_COLOR col);
 
+// Funcion para trazar una Linea dpor DDA 
 void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col);
 
+// Funcion para trazar una linea por Bresenham
 void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col = BLANCO, uint32_t pattern = 0xFFFFFFFF);
 
+// Funcion que crea un rectangulo, se necesita dos Puntos
 void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR col);
 
+// Funcion que crea un circulo por Bresenham
+// Nesecita un Radio
 void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
 
+// Funcion que crea un elipse por Bresenham se nesecita el centro(xc,yc)
+// Nesecita un Radio_x y un Radio_y
 void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
 
+// Funcion que crea un triangulo, se nesecita tres puntos 
+// Se cierra automaticamente
 void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col);
 
+// Funcion para colocar un Pixel en la pantalla
+// Se colorea automaticamente dependiendo del main
 void Pixel(int32_t x, int32_t y, const ALLEGRO_COLOR col) {
 	al_put_pixel(x, y, col);
 }
 
+// Funcion para trazar una linea por Bresenham
 void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col, uint32_t pattern) {
 	int x, y, dx, dy, p, sigX, sigY;
 
@@ -108,6 +121,7 @@ void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR c
 	}
 }
 
+// Funcion que crea un rectangulo, se necesita dos Puntos
 void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR col) {
 
 	linea(x, y, x + w, y, col);
@@ -116,6 +130,8 @@ void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR 
 	linea(x, y + h, x, y, col);
 }
 
+// Funcion que crea un circulo por Bresenham
+// Nesecita un Radio
 void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 
 	int x, y, rx2, ry2, p1, p2;
@@ -166,6 +182,8 @@ void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 	}
 }
 
+// Funcion que crea un elipse por Bresenham se nesecita el centro(xc,yc)
+// Nesecita un Radio_x y un Radio_y
 void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 
 	int x, y, rx2, ry2, p1, p2;
@@ -218,6 +236,8 @@ void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR 
 	}
 }
 
+// Funcion que crea un triangulo, se nesecita tres puntos 
+// Se cierra automaticamente
 void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col) {
 
 	int r;
@@ -228,6 +248,7 @@ void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR 
 
 }
 
+// Funcion para trazar una Linea dpor DDA 
 void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col) {
 	int dx = x1 - x0;
 	int dy = y1 - y0;
