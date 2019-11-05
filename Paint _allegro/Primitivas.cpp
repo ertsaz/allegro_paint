@@ -83,19 +83,19 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 		return 0;
 	}
 
-	/*ini.icono1 = al_load_bitmap("");
-	ini.icono2 = al_load_bitmap("");
-	ini.icono3 = al_load_bitmap("");
-	ini.icono4 = al_load_bitmap("");
-	ini.icono5 = al_load_bitmap("");
-	ini.icono6 = al_load_bitmap("");
+	ini.icono1 = al_load_bitmap("img/barra1.png");
+	ini.icono2 = al_load_bitmap("img/581838.png");
+	ini.icono3 = al_load_bitmap("img/581838.png");
+	ini.icono4 = al_load_bitmap("img/581838.png");
+	ini.icono5 = al_load_bitmap("img/581838.png");
+	ini.icono6 = al_load_bitmap("img/581838.png");
 	if (!ini.icono1 || !ini.icono2 || !ini.icono3 || !ini.icono4 || !ini.icono5 || !ini.icono6) {
 		al_show_native_message_box(NULL, "ERRO",
 			"Se produjo el siguiente error y el programa finalizará:",
 			"La imagen no se pudo cargar", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		destroy();
 		return 0;
-	}*/
+	}
 
 	al_init_font_addon();
 	if (!al_init_ttf_addon()) {
@@ -141,20 +141,9 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 		return 0;
 	}
 
-	/*timer = al_create_timer(1.0 / FPS);
-	if (!timer) {
-		al_show_native_message_box(NULL, "ERRO",
-			"Se produjo el siguiente error y el programa finalizará:",
-			"Error al crear el temporizador", NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		destroy();
-		return 0;
-	}*/
-
 	al_register_event_source(ini.colaevento, al_get_display_event_source(ini.sVentana));
 	al_register_event_source(ini.colaevento, al_get_mouse_event_source());
 	al_register_event_source(ini.colaevento, al_get_keyboard_event_source());
-	/*al_register_event_source(fila_eventos, al_get_timer_event_source(timer));
-	al_start_timer(timer);*/
 
 	return 1;
 }
@@ -565,6 +554,8 @@ int main(int argc, char** argv)
 
 			al_clear_to_color(V_DARK);
 
+			
+
 			int sx, sy;
 			int ex, ey;
 
@@ -603,6 +594,10 @@ int main(int argc, char** argv)
 				formaTemp->DibujarForma();
 				formaTemp->DibujarPuntos();
 			}
+
+			/**********************************iconos****************************************/
+			al_draw_bitmap(ini.icono1, 0, 100, 0);
+			/**********************************iconos****************************************/ 
 
 			al_draw_textf(ini.fuente, GRAYI, 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.0f , Y: %.0f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
