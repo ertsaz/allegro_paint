@@ -28,7 +28,7 @@ struct vf2d
 
 vf2d vOffset = { 0.0f, 0.0f };
 vf2d vIniPan = { 0.0f, 0.0f };
-float fEscala = 10.0f;
+float fEscala = 1.0f;
 
 // Convierte coordenadas de World Space --> Screen Space
 void WorldToScreen(const float v_x, const float v_y, int& nScreenX, int& nScreenY)
@@ -388,15 +388,16 @@ struct sElipse : public sFormas
 int main(int argc, char** argv)
 {
 	ALLEGRO_EVENT event;
-	std::list<sFormas*> listShapes;
+	std::list<sFormas*> listaFormas;
 	sFormas* formaTemp = nullptr;
 	sPuntos* selecPunto = nullptr;
 	vf2d vMouse;
 	vf2d vCursor = { 0, 0 };
 	float fCuadricula = 1.0f;
-	float fEscala = 10.0f;
+	float fEscala = 1.0f;
 	bool mpres = false;
 	bool bSinPunto = false;
+	bool bMoverPunto = false;
 	int nForma = NADA;
 
 	(void)argc;
@@ -428,6 +429,12 @@ int main(int argc, char** argv)
 				else
 					bSinPunto = true;
 				break;
+			case 'M':
+				if (bMoverPunto)
+					bMoverPunto = false;
+				else
+					bMoverPunto = true;
+				break;
 			case 'L':
 				nForma = LINEA_B;
 				break;
@@ -448,64 +455,75 @@ int main(int argc, char** argv)
 		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			vCursor.x = floorf((vMouseB.x + 0.5f) * fCuadricula);
 			vCursor.y = floorf((vMouseB.y + 0.5f) * fCuadricula);
-			if (nForma == LINEA_B)
+
+			if (event.mouse.button == 1)
 			{
-				formaTemp = new sLinea();
+				if (nForma == LINEA_B)
+				{
+					formaTemp = new sLinea();
 
-				// primer punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
+					// primer punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
 
-				// segundo punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-				nForma = NADA;
+					// segundo punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+					nForma = NADA;
+				}
+				else if (nForma == CIRCULO)
+				{
+					formaTemp = new sCir();
+
+					// primer punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+
+					// segundo punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+					nForma = NADA;
+				}
+				else if (nForma == RECTANGULO)
+				{
+					formaTemp = new sRec();
+
+					// primer punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+
+					// segundo punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+					nForma = NADA;
+				}
+				else if (nForma == TRIANGULO)
+				{
+					formaTemp = new sTriangulo();
+
+					// primer punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+
+					// segundo punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+					nForma = NADA;
+				}
+				else if (nForma == ELIPSE)
+				{
+					formaTemp = new sElipse();
+
+					// primer punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+
+					// segundo punto
+					selecPunto = formaTemp->OptenerPunto(vCursor);
+					nForma = NADA;
+				}
+				else if (bMoverPunto)
+				{
+					selecPunto = nullptr;
+					for (auto& Formas : listaFormas)
+					{
+						selecPunto = Formas->HitPunto(vCursor);
+						if (selecPunto != nullptr)
+							break;
+					}
+				}
 			}
-			else if (nForma == CIRCULO)
-			{
-				formaTemp = new sCir();
-
-				// primer punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-
-				// segundo punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-				nForma = NADA;
-			}
-			else if (nForma == RECTANGULO)
-			{
-				formaTemp = new sRec();
-
-				// primer punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-
-				// segundo punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-				nForma = NADA;
-			}
-			else if (nForma == TRIANGULO)
-			{
-				formaTemp = new sTriangulo();
-
-				// primer punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-
-				// segundo punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-				nForma = NADA;
-			}
-			else if (nForma == ELIPSE)
-			{
-				formaTemp = new sElipse();
-
-				// primer punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-
-				// segundo punto
-				selecPunto = formaTemp->OptenerPunto(vCursor);
-				nForma = NADA;
-			}
-			/*else if (event.mouse.button == 1){}
-			else if (event.mouse.button == 2){}*/
-
 			else if (event.mouse.button == 3)
 			{
 				vIniPan.x = vMouse.x;
@@ -513,17 +531,22 @@ int main(int argc, char** argv)
 				mpres = true;
 			}
 		}
-		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
-			if (formaTemp != nullptr)
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+		{
+			if (event.mouse.button == 1)
 			{
-				selecPunto = formaTemp->OptenerPunto(vMouse);
-				if (selecPunto == nullptr)
+				if (formaTemp != nullptr)
 				{
-					formaTemp->col = GRAYI;
-					listShapes.push_back(formaTemp);
+					selecPunto = formaTemp->OptenerPunto(vMouse);
+					if (selecPunto == nullptr)
+					{
+						formaTemp->col = GRAYI;
+						listaFormas.push_back(formaTemp);
+					}
 				}
 			}
 			mpres = false;
+
 		}
 		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 
@@ -553,9 +576,7 @@ int main(int argc, char** argv)
 		if (al_is_event_queue_empty(ini.colaevento)) {
 
 			al_clear_to_color(V_DARK);
-
 			
-
 			int sx, sy;
 			int ex, ey;
 
@@ -582,7 +603,7 @@ int main(int argc, char** argv)
 			sFormas::vWorldOffset.x = vOffset.x;
 			sFormas::vWorldOffset.y = vOffset.y;
 
-			for (auto& forma : listShapes)
+			for (auto& forma : listaFormas)
 			{
 				forma->DibujarForma();
 				if (bSinPunto)
@@ -597,7 +618,7 @@ int main(int argc, char** argv)
 
 			/**********************************iconos****************************************/
 			al_draw_bitmap(ini.icono1, 0, 100, 0);
-			/**********************************iconos****************************************/ 
+			/**********************************iconos****************************************/
 
 			al_draw_textf(ini.fuente, GRAYI, 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.0f , Y: %.0f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
