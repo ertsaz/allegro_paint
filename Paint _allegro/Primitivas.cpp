@@ -84,11 +84,11 @@ int ini_allegro(int nAnc, int nAlt, const char* tTitulo) {
 	}
 
 	ini.icono1 = al_load_bitmap("img/barra1.png");
-	ini.icono2 = al_load_bitmap("img/581838.png");
-	ini.icono3 = al_load_bitmap("img/581838.png");
-	ini.icono4 = al_load_bitmap("img/581838.png");
-	ini.icono5 = al_load_bitmap("img/581838.png");
-	ini.icono6 = al_load_bitmap("img/581838.png");
+	ini.icono2 = al_load_bitmap("img/linea.png");
+	ini.icono3 = al_load_bitmap("img/linea.png");
+	ini.icono4 = al_load_bitmap("img/linea.png");
+	ini.icono5 = al_load_bitmap("img/linea.png");
+	ini.icono6 = al_load_bitmap("img/linea.png");
 	if (!ini.icono1 || !ini.icono2 || !ini.icono3 || !ini.icono4 || !ini.icono5 || !ini.icono6) {
 		al_show_native_message_box(NULL, "ERRO",
 			"Se produjo el siguiente error y el programa finalizará:",
@@ -402,7 +402,7 @@ int main(int argc, char** argv)
 	(void)argc;
 	(void)argv;
 
-	if (!ini_allegro(1400, 800, "Herramientas de Programacion Grafica"))
+	if (!ini_allegro(1200, 600, "Herramientas de Programacion Grafica"))
 		return -1;
 
 	vOffset = { (float)(-al_get_display_width(ini.sVentana) / 2) / fEscala, (float)(-al_get_display_height(ini.sVentana) / 2) / fEscala };
