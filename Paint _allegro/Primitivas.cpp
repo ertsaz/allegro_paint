@@ -28,7 +28,7 @@ struct vf2d
 
 vf2d vOffset = { 0.0f, 0.0f };
 vf2d vIniPan = { 0.0f, 0.0f };
-float fEscala = 1.0f;
+float fEscala = 5.0f;
 
 // Convierte coordenadas de World Space --> Screen Space
 void WorldToScreen(const float v_x, const float v_y, int& nScreenX, int& nScreenY)
@@ -394,7 +394,7 @@ int main(int argc, char** argv)
 	vf2d vMouse;
 	vf2d vCursor = { 0, 0 };
 	float fCuadricula = 1.0f;
-	float fEscala = 1.0f;
+	float fEscala = 5.0f;
 	bool mpres = false;
 	bool bSinPunto = false;
 	bool bMoverPunto = false;
@@ -576,16 +576,16 @@ int main(int argc, char** argv)
 		if (al_is_event_queue_empty(ini.colaevento)) {
 
 			al_clear_to_color(V_DARK);
-			
+
 			int sx, sy;
 			int ex, ey;
 
-			// Get visible world
+			// Mundo
 			vf2d vWorldTopLeft, vWorldBottomRight;
 			ScreenToWorld(0, 0, vWorldTopLeft);
 			ScreenToWorld(al_get_display_width(ini.sVentana), al_get_display_height(ini.sVentana), vWorldBottomRight);
 
-			// Get values just beyond screen boundaries
+			// Valores más allá de los límites de la pantalla
 			vWorldTopLeft.x = floor(vWorldTopLeft.x);
 			vWorldTopLeft.y = floor(vWorldTopLeft.y);
 			vWorldBottomRight.x = ceil(vWorldBottomRight.x);
@@ -619,6 +619,9 @@ int main(int argc, char** argv)
 			/**********************************iconos****************************************/
 			al_draw_bitmap(ini.icono1, 0, 100, 0);
 			/**********************************iconos****************************************/
+
+			WorldToScreen(vCursor.x, vCursor.y, sx, sy);
+			circulo(5.0f, sx, sy, M_ORANGE);
 
 			al_draw_textf(ini.fuente, GRAYI, 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.0f , Y: %.0f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
