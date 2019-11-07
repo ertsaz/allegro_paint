@@ -354,7 +354,7 @@ struct sElipse : public sFormas
 			// dibuja línea de primera punto a segunda punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 			MundoAScreen(vecPuntos[1].pos, ex, ey);
-			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+			linea(sx, sy, ex, sy, col, 0xFF00FF00);
 		}
 
 		if (vecPuntos.size() == 3)
@@ -362,19 +362,19 @@ struct sElipse : public sFormas
 			// dibuja línea de primera punto a segunda punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 			MundoAScreen(vecPuntos[1].pos, ex, ey);
-			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+			linea(sx, sy, ex, sy, col, 0xFF00FF00);
 
 			// dibuja línea de segunda punto a tercer punto
 			MundoAScreen(vecPuntos[0].pos, sx, sy);
 			MundoAScreen(vecPuntos[2].pos, ex, ey);
-			linea(sx, sy, ex, ey, col, 0xFF00FF00);
+			linea(sx, sy, sx, ey, col, 0xFF00FF00);
 
 			// Radio en x y y
 			// Se calcula con el triangulo rectangulo
 			float dx = abs(vecPuntos[0].pos.x - vecPuntos[1].pos.x);
-			float dy = abs(vecPuntos[0].pos.y - vecPuntos[1].pos.y);
+			float dy = abs(vecPuntos[1].pos.y - vecPuntos[1].pos.y);
 			float fRadiusx = sqrt(pow(dx, 2) + pow(dy, 2));
-			float dx2 = abs(vecPuntos[0].pos.x - vecPuntos[2].pos.x);
+			float dx2 = abs(vecPuntos[0].pos.x - vecPuntos[0].pos.x);
 			float dy2 = abs(vecPuntos[0].pos.y - vecPuntos[2].pos.y);
 			float fRadiusy = sqrt(pow(dx2, 2) + pow(dy2, 2));
 			// dibuja línea de tercer punto a primer punto
