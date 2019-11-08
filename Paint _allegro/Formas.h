@@ -26,37 +26,37 @@ enum eforma
 
 // Funcion para colocar un Pixel en la pantalla
 // Se colorea automaticamente dependiendo del main
-void Pixel(int32_t x, int32_t y, const ALLEGRO_COLOR col);
+void Pixel(int x, int y, const ALLEGRO_COLOR col);
 
 // Funcion para trazar una Linea dpor DDA 
-void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col);
+void lineaDDA(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col);
 
 // Funcion para trazar una linea por Bresenham
-void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col = BLANCO, uint32_t pattern = 0xFFFFFFFF);
+void linea(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col = BLANCO, uint32_t pattern = 0xFFFFFFFF);
 
 // Funcion que crea un rectangulo, se necesita dos Puntos
-void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR col);
+void rectangulo(int x, int y, int w, int h, const ALLEGRO_COLOR col);
 
 // Funcion que crea un circulo por Bresenham
 // Nesecita un Radio
-void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
+void circulo(int r, int xc, int yc, const ALLEGRO_COLOR col);
 
 // Funcion que crea un elipse por Bresenham se nesecita el centro(xc,yc)
 // Nesecita un Radio_x y un Radio_y
-void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col);
+void elipse(int rx, int ry, int xc, int yc, const ALLEGRO_COLOR col);
 
 // Funcion que crea un triangulo, se nesecita tres puntos 
 // Se cierra automaticamente
-void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col);
+void trgiso(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col);
 
 // Funcion para colocar un Pixel en la pantalla
 // Se colorea automaticamente dependiendo del main
-void Pixel(int32_t x, int32_t y, const ALLEGRO_COLOR col) {
+void Pixel(int x, int y, const ALLEGRO_COLOR col) {
 	al_put_pixel(x, y, col);
 }
 
 // Funcion para trazar una linea por Bresenham
-void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col, uint32_t pattern) {
+void linea(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col, uint32_t pattern) {
 	int x, y, dx, dy, p, sigX, sigY;
 
 	auto rol = [&](void)
@@ -122,7 +122,7 @@ void linea(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR c
 }
 
 // Funcion que crea un rectangulo, se necesita dos Puntos
-void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR col) {
+void rectangulo(int x, int y, int w, int h, const ALLEGRO_COLOR col) {
 
 	linea(x, y, x + w, y, col);
 	linea(x + w, y, x + w, y + h, col);
@@ -132,7 +132,7 @@ void rectangulo(int32_t x, int32_t y, int32_t w, int32_t h, const ALLEGRO_COLOR 
 
 // Funcion que crea un circulo por Bresenham
 // Nesecita un Radio
-void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
+void circulo(int r, int xc, int yc, const ALLEGRO_COLOR col) {
 
 	int x, y, rx2, ry2, p1, p2;
 
@@ -161,7 +161,7 @@ void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 		Pixel(xc - x, yc - y, col);
 	}
 
-	p2 = (ry2)*pow((x + 0.5), 2) + (rx2)*pow((y - 1), 2) - (rx2 * ry2);
+	p2 = (ry2)*pow(((double)x + 0.5), 2) + (rx2)*pow(((double)y - 1.0f), 2) - ((double)rx2 * (double)ry2);
 
 	while (y > 0)
 	{
@@ -184,7 +184,7 @@ void circulo(int32_t r, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
 
 // Funcion que crea un elipse por Bresenham se nesecita el centro(xc,yc)
 // Nesecita un Radio_x y un Radio_y
-void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR col) {
+void elipse(int rx, int ry, int xc, int yc, const ALLEGRO_COLOR col) {
 
 	int x, y, rx2, ry2, p1, p2;
 	//int ry;
@@ -215,7 +215,7 @@ void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR 
 		Pixel(xc - x, yc - y, col);
 	}
 
-	p2 = (ry2)*pow((x + 0.5), 2) + (rx2)*pow((y - 1), 2) - (rx2 * ry2);
+	p2 = (ry2)*pow(((double)x + 0.5f), 2) + (rx2)*pow(((double)y - 1.0f), 2) - ((double)rx2 * (double)ry2);
 
 	while (y > 0)
 	{
@@ -238,10 +238,10 @@ void elipse(int32_t rx, int32_t ry, int32_t xc, int32_t yc, const ALLEGRO_COLOR 
 
 // Funcion que crea un triangulo, se nesecita tres puntos 
 // Se cierra automaticamente
-void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col) {
+void trgiso(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col) {
 
 	int r;
-	r = sqrt((pow((x1 - x0), 2)) + (pow((y1 - y0), 2))); // CAMBIALO
+	r = sqrt((pow(((double)x1 - (double)x0), 2)) + (pow(((double)y1 - (double)y0), 2))); // CAMBIALO
 	linea(x0, y0, x1, y1, col);
 	linea(x1, y1, x0 + r, y0, col);
 	linea(x0, y0, x0 + r, y0, col);
@@ -249,7 +249,7 @@ void trgiso(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR 
 }
 
 // Funcion para trazar una Linea dpor DDA 
-void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLOR col) {
+void lineaDDA(int x0, int y0, int x1, int y1, const ALLEGRO_COLOR col) {
 	int dx = x1 - x0;
 	int dy = y1 - y0;
 
@@ -262,7 +262,7 @@ void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLO
 			dx = 1;
 		while (x0 != x1) {
 			x0 += dx;
-			y0 = round(m * x0 + b); //calcula con la ecuacion de la recta
+			y0 = round(m * (double)x0 + b); //calcula con la ecuacion de la recta
 			Pixel(x0, y0, col);
 		}
 	}
@@ -276,7 +276,7 @@ void lineaDDA(int32_t x0, int32_t y0, int32_t x1, int32_t y1, const ALLEGRO_COLO
 				dy = 1;
 			while (y0 != y1) {
 				y0 += dy;
-				x0 = round(m * y0 + b);
+				x0 = round(m * (double)y0 + b);
 				Pixel(x0, y0, col);//calcula con la ecuacion de la recta
 			}
 		}

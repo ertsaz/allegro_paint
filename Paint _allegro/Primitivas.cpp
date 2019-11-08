@@ -394,11 +394,11 @@ int main(int argc, char** argv)
 	vf2d vMouse;
 	vf2d vCursor = { 0, 0 };
 	float fCuadricula = 1.0f;
-	float fEscala = 5.0f;
 	bool mpres = false;
 	bool bSinPunto = false;
 	bool bMoverPunto = false;
 	int nForma = NADA;
+	bool panel = false;
 
 	(void)argc;
 	(void)argv;
@@ -560,15 +560,13 @@ int main(int argc, char** argv)
 			{
 				selecPunto->pos = vCursor;
 			}
-			/*else if (event.mouse.x >= al_get_display_width(ini.sVentana) / 2 - al_get_bitmap_width(area_central) / 2 &&
-				event.mouse.x <= al_get_display_width(ini.sVentana) / 2 + al_get_bitmap_width(area_central) / 2 &&
-				event.mouse.y >= al_get_display_height(ini.sVentana) / 2 - al_get_bitmap_height(area_central) / 2 &&
-				event.mouse.y <= al_get_display_height(ini.sVentana) / 2 + al_get_bitmap_height(area_central) / 2) {
-				na_area_central = 1;
+
+			if (event.mouse.x >= 0 && event.mouse.x <= al_get_bitmap_width(ini.icono1) && event.mouse.y >= 100 && event.mouse.y <= 100 + al_get_bitmap_height(ini.icono1))
+
+			{
+				panel = true;
 			}
-			else {
-				na_area_central = 0;
-			}*/
+
 
 		}
 
@@ -618,10 +616,15 @@ int main(int argc, char** argv)
 
 			/**********************************iconos****************************************/
 			al_draw_bitmap(ini.icono1, 0, 100, 0);
+			if (panel)
+			{
+				al_draw_textf(ini.fuente, GRAYI, 200, 100, ALLEGRO_ALIGN_RIGHT, "panel");
+				panel = false;
+			}
 			/**********************************iconos****************************************/
 
 			WorldToScreen(vCursor.x, vCursor.y, sx, sy);
-			circulo(5.0f, sx, sy, M_ORANGE);
+			circulo(4.0f, sx, sy, M_ORANGE);
 
 			al_draw_textf(ini.fuente, GRAYI, 200, 20, ALLEGRO_ALIGN_RIGHT, "X: %.0f , Y: %.0f", vCursor.x, vCursor.y);
 			al_set_target_backbuffer(ini.sVentana);
