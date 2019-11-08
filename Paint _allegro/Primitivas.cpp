@@ -153,7 +153,6 @@ struct sFormas;
 // Define un punto
 struct sPuntos
 {
-	sFormas* tipo_forma;
 	vf2d pos;
 };
 
@@ -189,7 +188,6 @@ struct sFormas
 
 		// si no se agrega mas puntos
 		sPuntos n;
-		n.tipo_forma = this;
 		n.pos = p;
 		vecPuntos.push_back(n);
 
@@ -392,12 +390,13 @@ int main(int argc, char** argv)
 	sFormas* formaTemp = nullptr;
 	sPuntos* selecPunto = nullptr;
 	vf2d vMouse;
+	vf2d vMouseB;
 	vf2d vCursor = { 0, 0 };
+	int nForma = NADA;
 	float fCuadricula = 1.0f;
 	bool mpres = false;
 	bool bSinPunto = false;
 	bool bMoverPunto = false;
-	int nForma = NADA;
 	bool panel = false;
 
 	(void)argc;
@@ -410,19 +409,22 @@ int main(int argc, char** argv)
 
 	while (true) {
 
-		/*************************************************acualizacion de pantalla*******************************************************/
+		/*************************************************eventos del usuario*******************************************************/
 		al_wait_for_event(ini.colaevento, &event);
 		vMouse = { (float)event.mouse.x ,(float)event.mouse.y };
-		vf2d vMouseB;
 		ScreenToWorld((int)vMouse.x, (int)vMouse.y, vMouseB);
+		// El Cursor se coloca en un cuadricula invisible
 		vCursor.x = floorf((vMouseB.x + 0.5f) * fCuadricula);
 		vCursor.y = floorf((vMouseB.y + 0.5f) * fCuadricula);
+
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 			break;
-		if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
+		if (event.type == ALLEGRO_EVENT_KEY_CHAR) 
+		{
 			if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
 				break;
-			switch (toupper(event.keyboard.unichar)) {
+			switch (toupper(event.keyboard.unichar)) 
+			{
 			case 'S':
 				if (bSinPunto)
 					bSinPunto = false;
@@ -452,7 +454,8 @@ int main(int argc, char** argv)
 				break;
 			}
 		}
-		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+		if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) 
+		{
 			vCursor.x = floorf((vMouseB.x + 0.5f) * fCuadricula);
 			vCursor.y = floorf((vMouseB.y + 0.5f) * fCuadricula);
 
@@ -523,6 +526,8 @@ int main(int argc, char** argv)
 							break;
 					}
 				}
+				else if (event.mouse.x >= 0 && event.mouse.x <= al_get_bitmap_width(ini.icono1) && event.mouse.y >= 100 && event.mouse.y <= 100 + al_get_bitmap_height(ini.icono1))
+					panel = true;
 			}
 			else if (event.mouse.button == 3)
 			{
@@ -546,10 +551,9 @@ int main(int argc, char** argv)
 				}
 			}
 			mpres = false;
-
 		}
-		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
-
+		if (event.type == ALLEGRO_EVENT_MOUSE_AXES) 
+		{
 			if (mpres)
 			{
 				vOffset.x -= (vMouse.x - vIniPan.x) / fEscala;
@@ -560,40 +564,32 @@ int main(int argc, char** argv)
 			{
 				selecPunto->pos = vCursor;
 			}
-
-			if (event.mouse.x >= 0 && event.mouse.x <= al_get_bitmap_width(ini.icono1) && event.mouse.y >= 100 && event.mouse.y <= 100 + al_get_bitmap_height(ini.icono1))
-
-			{
-				panel = true;
-			}
-
-
 		}
 
-		/*************************************************acualizacion de pantalla*******************************************************/
+		/*************************************************actualizacion de pantalla*******************************************************/
 		if (al_is_event_queue_empty(ini.colaevento)) {
 
-			al_clear_to_color(V_DARK);
+			al_clear_to_color(V_DARK);// Limpia la pantalla
 
 			int sx, sy;
 			int ex, ey;
 
 			// Mundo
-			vf2d vWorldTopLeft, vWorldBottomRight;
-			ScreenToWorld(0, 0, vWorldTopLeft);
-			ScreenToWorld(al_get_display_width(ini.sVentana), al_get_display_height(ini.sVentana), vWorldBottomRight);
+			vf2d vMundo_Arr_Izq, vMundo_Aba_Der;
+			ScreenToWorld(0, 0, vMundo_Arr_Izq);
+			ScreenToWorld(al_get_display_width(ini.sVentana), al_get_display_height(ini.sVentana), vMundo_Aba_Der);
 
 			// Valores más allá de los límites de la pantalla
-			vWorldTopLeft.x = floor(vWorldTopLeft.x);
-			vWorldTopLeft.y = floor(vWorldTopLeft.y);
-			vWorldBottomRight.x = ceil(vWorldBottomRight.x);
-			vWorldBottomRight.y = ceil(vWorldBottomRight.y);
+			vMundo_Arr_Izq.x = floor(vMundo_Arr_Izq.x);
+			vMundo_Arr_Izq.y = floor(vMundo_Arr_Izq.y);
+			vMundo_Aba_Der.x = ceil(vMundo_Aba_Der.x);
+			vMundo_Aba_Der.y = ceil(vMundo_Aba_Der.y);
 
-			WorldToScreen(0, vWorldTopLeft.y, sx, sy);
-			WorldToScreen(0, vWorldBottomRight.y, ex, ey);
+			WorldToScreen(0, vMundo_Arr_Izq.y, sx, sy);
+			WorldToScreen(0, vMundo_Aba_Der.y, ex, ey);
 			linea(sx, sy, ex, ey, al_map_rgb(36, 64, 45), 0xFF00FF00);
-			WorldToScreen(vWorldTopLeft.x, 0, sx, sy);
-			WorldToScreen(vWorldBottomRight.x, 0, ex, ey);
+			WorldToScreen(vMundo_Arr_Izq.x, 0, sx, sy);
+			WorldToScreen(vMundo_Aba_Der.x, 0, ex, ey);
 			linea(sx, sy, ex, ey, al_map_rgb(36, 64, 45), 0xFF00FF00);
 
 			// Actualizar coeficientes de traslacion de formas
